@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS  # Import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # Allow frontend to communicate with backend
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 # Configure SQLite database
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///fooddata.db"
@@ -27,6 +27,7 @@ def home():
 
 # API to submit a food rating
 @app.route("/submit", methods=["POST"])
+
 def submit_rating():
     try:
         data = request.json
@@ -35,7 +36,12 @@ def submit_rating():
 
         if not food_name or rating is None:
             return jsonify({"error": "Missing food name or rating"}), 400
-
+        
+        if (int(rating) <  1) or (int(rating) > 10):
+            print("RECEIVED:", rating)
+            return jsonify({"error": "Rating must be between 1-10"}), 400
+        
+        print("NOT RECEIVED:", rating)
         new_rating = FoodRating(food_name=food_name, rating=rating)
         db.session.add(new_rating)
         db.session.commit()
@@ -44,6 +50,9 @@ def submit_rating():
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": "Something went wrong"}), 500  # Return a proper error response
+    
+def remove_rating():
+
 
 # API to get all food ratings
 @app.route("/get-ratings", methods=["GET"])
@@ -54,4 +63,4 @@ def get_ratings():
 if __name__ == "__main__":
     print("Starting Flask server...")
     print("Registered routes:", app.url_map)  # Debugging: Prints all active routes
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = "http://127.0.0.1:5001";
 
 function App() {
     const [foodName, setFoodName] = useState("");
     const [rating, setRating] = useState("");
     const [ratings, setRatings] = useState([]);
+    const [removeName, setRemoveName] = useState("");
 
     // Fetch existing ratings when the page loads
     useEffect(() => {
@@ -15,7 +16,7 @@ function App() {
             .catch(error => console.error("Error fetching ratings:", error));
     }, []);
 
-    // Function to submit a new rating
+    // Hitting the submit button
     const handleSubmit = (e) => {
         e.preventDefault();
         const newRating = { food_name: foodName, rating: parseInt(rating) };
@@ -27,14 +28,28 @@ function App() {
         })
         .then(response => response.json())
         .then(data => {
+        if (data.error) {
+            console.error("Error:", data.error);
+            alert(data.error);
+        } else {
             console.log("Success:", data);
-            setRatings([...ratings, newRating]); // Update UI
+            setRatings([...ratings, newRating]);
             setFoodName("");
             setRating("");
+        }
         })
         .catch(error => console.error("Error submitting rating:", error));
     };
 
+    // Function to remove an existing rating
+    const handleRemove = (r) => {
+        r.preventDefault();
+        removeName;
+        
+    }
+
+
+    // Input/texts
     return (
         <div>
             <h1>Personal Food Data Tracker</h1>
@@ -65,6 +80,17 @@ function App() {
                     </li>
                 ))}
             </ul>
+            
+            <h2>Remove previous ratings</h2>
+            <form onSubmit={handleRemove}>
+                <input
+                    type = "text"
+                    placeholder = "remove this food"
+                    value = {removeName}
+                    onChange={(r) => setRemoveName(e.target.value)}
+                />
+                <button type="submit">Remove rating</button>
+            </form>
         </div>
     );
 }
