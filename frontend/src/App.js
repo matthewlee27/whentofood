@@ -6,6 +6,7 @@ function App() {
     const [foodName, setFoodName] = useState("");
     const [rating, setRating] = useState("");
     const [ratings, setRatings] = useState([]);
+    const [food_id, setID] = useState("");
 
     // Fetch existing ratings when the page loads
     useEffect(() => {
@@ -27,19 +28,38 @@ function App() {
         })
         .then(response => response.json()) // waits for a response and parses it into JSON
         .then(data => { // checks if we get a data error
-        if (data.error) {
-            console.error("Error:", data.error);
-            alert(data.error);
-        } else {
-            console.log("Success:", data);
-            setRatings([...ratings, data]);
-            setFoodName("");
-            setRating("");
-        }
+            if (data.error) {
+                console.error("Error:", data.error);
+                alert(data.error);
+            } else {
+                console.log("Success:", data);
+                setRatings([...ratings, data]);
+                setFoodName("");
+                setRating("");
+            }
         })
         .catch(error => console.error("Error submitting rating:", error));
     };
 
+    const handleDeletion = (id) => {
+        
+        fetch(`${API_URL}/delete`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({id})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error){
+                console.error("Error", data.error);
+                alert(data.error);
+            } else {
+                console.log("Deleted:", data);
+                setRatings(ratings.filter(r=> r.id !== id));
+            }
+        })
+        .catch(error => console.error("Error deleting rating", error));
+    };
 
     // Input/texts
     return (
@@ -72,7 +92,8 @@ function App() {
 
                     return(
                         <li key={r.id}>
-                        {r.food_name}: {r.rating}/10 - Submitted on {formattedTime}
+                            {r.food_name}: {r.rating}/10 - Submitted on {formattedTime}
+                            <button onClick={() => handleDeletion(r.id)}>Remove Rating</button>
                         </li>
                     );
                 })}

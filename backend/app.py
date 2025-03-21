@@ -62,6 +62,31 @@ def submit_rating():
         print("Error:", e)
         return jsonify({"error": "Something went wrong"}), 500  # Return a proper error response
 
+#submit a food deletion
+@app.route("/delete", methods = ["POST"])
+
+def remove_rating():
+    try:
+        data = request.json
+        food_id = data.get("id")
+
+        if not food_id:
+            return jsonify({"error": "Missing rating ID"}), 400
+    
+        rating_to_delete = FoodRating.query.get(food_id)
+
+        if not rating_to_delete:
+            return jsonify({"error": "Rating not found"}), 404
+    
+        db.session.delete(rating_to_delete)  # Delete the rating
+        db.session.commit()
+    
+        return jsonify({"message": "Successfully deleted!", "id": food_id}), 202
+    
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"error": "Something went wrong"}), 500
+
 # API to get all food ratings
 @app.route("/get-ratings", methods=["GET"])
 def get_ratings():
