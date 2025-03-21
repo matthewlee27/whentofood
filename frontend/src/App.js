@@ -6,7 +6,6 @@ function App() {
     const [foodName, setFoodName] = useState("");
     const [rating, setRating] = useState("");
     const [ratings, setRatings] = useState([]);
-    const [removeName, setRemoveName] = useState("");
 
     // Fetch existing ratings when the page loads
     useEffect(() => {
@@ -19,34 +18,27 @@ function App() {
     // Hitting the submit button
     const handleSubmit = (e) => {
         e.preventDefault();
-        const newRating = { food_name: foodName, rating: parseInt(rating) };
+        const newRating = { food_name: foodName, rating: parseInt(rating)}; // this is the format our flask wants
 
-        fetch(`${API_URL}/submit`, {
+        fetch(`${API_URL}/submit`, { //we define the API url above
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(newRating),
         })
-        .then(response => response.json())
-        .then(data => {
+        .then(response => response.json()) // waits for a response and parses it into JSON
+        .then(data => { // checks if we get a data error
         if (data.error) {
             console.error("Error:", data.error);
             alert(data.error);
         } else {
             console.log("Success:", data);
-            setRatings([...ratings, newRating]);
+            setRatings([...ratings, data]);
             setFoodName("");
             setRating("");
         }
         })
         .catch(error => console.error("Error submitting rating:", error));
     };
-
-    // Function to remove an existing rating
-    const handleRemove = (r) => {
-        r.preventDefault();
-        removeName;
-        
-    }
 
 
     // Input/texts
@@ -74,23 +66,17 @@ function App() {
 
             <h2>Previous Ratings:</h2>
             <ul>
-                {ratings.map((r, index) => (
-                    <li key={index}>
-                        {r.food_name}: {r.rating}/10
-                    </li>
-                ))}
+                {ratings.map((r) => {
+                    const submittedDate = new Date(r.time_submitted);
+                    const formattedTime = submittedDate.toLocaleString();
+
+                    return(
+                        <li key={r.id}>
+                        {r.food_name}: {r.rating}/10 - Submitted on {formattedTime}
+                        </li>
+                    );
+                })}
             </ul>
-            
-            <h2>Remove previous ratings</h2>
-            <form onSubmit={handleRemove}>
-                <input
-                    type = "text"
-                    placeholder = "remove this food"
-                    value = {removeName}
-                    onChange={(r) => setRemoveName(e.target.value)}
-                />
-                <button type="submit">Remove rating</button>
-            </form>
         </div>
     );
 }
