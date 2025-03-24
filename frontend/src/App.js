@@ -7,6 +7,16 @@ function App() {
     const [rating, setRating] = useState("");
     const [ratings, setRatings] = useState([]);
 
+    //Set up timezone
+    useEffect(() => {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        fetch(`${API_URL}/set-time`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json" },
+            body: JSON.stringify({ timezone })
+        });
+    }, [])
+
     // Fetch existing ratings when the page loads
     useEffect(() => {
         fetch(`${API_URL}/get-ratings`)
@@ -18,7 +28,13 @@ function App() {
     // Hitting the submit button
     const handleSubmit = (e) => {
         e.preventDefault();
-        const newRating = { food_name: foodName, rating: parseInt(rating)}; // this is the format our flask wants
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const newRating = {
+            food_name: foodName,
+            rating: parseInt(rating),
+            timezone: timezone
+        }; // this is the format our flask wants
+        
 
         fetch(`${API_URL}/submit`, { //we define the API url above
             method: "POST",
@@ -100,7 +116,7 @@ function App() {
 
                     return(
                         <li key={r.id}>
-                            {r.food_name}: {r.rating}/10 - Submitted on {formattedTime}
+                            {r.food_name}: {r.rating}/10 - Submitted on {formattedTime}  
                             <button onClick={() => handleDeletion(r.id)}>Remove Rating</button>
                         </li>
                     );

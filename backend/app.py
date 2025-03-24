@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS  # Import CORS
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import os
 
 app = Flask(__name__)
@@ -26,18 +27,31 @@ with app.app_context():
     db.create_all()
     print("Database path:", os.path.abspath("fooddata.db"))
 
-@app.route("/") # "receives" the request
+# Make sure we start the program correctly
+@app.route("/")
 def home():
     return jsonify({"message": "Backend is running!"})
 
+# Make sure the TimeZone is correct
+@app.route("/set-time", methods=["POST"])
+def set_timezone():
+    data = request.json
+    timezone_submitted = data.get("timezone")
+    
+    try:
+        now = datetime.now(ZoneInfo(timezone_submitted))
+        return jsonify({"localized_time": now.isoformat()}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 # API to submit a food rating
 @app.route("/submit", methods=["POST"])
-
 def submit_rating():
     try:
         data = request.json
         food_name = data.get("food_name")
         rating = data.get("rating")
+        timezone_str = data.get("timezone")
 
         if not food_name or rating is None:
             return jsonify({"error": "Missing food name or rating"}), 400
@@ -45,10 +59,12 @@ def submit_rating():
         if (int(rating) <  1) or (int(rating) > 10):
             return jsonify({"error": "Rating must be between 1-10"}), 400
         
+        time_submitted = datetime.now(ZoneInfo(timezone_str))
+
         new_rating = FoodRating(
             food_name=food_name,
             rating=rating,
-            time_submitted=datetime.utcnow()
+            time_submitted=time_submitted
         )
         db.session.add(new_rating)
         db.session.commit()
