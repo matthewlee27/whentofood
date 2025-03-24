@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS  # Import CORS
-from datetime import datetime
+from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 import os
 
@@ -20,12 +20,6 @@ class FoodRating(db.Model):
     food_name = db.Column(db.String(100), nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     time_submitted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
-# Ensure database tables are created
-with app.app_context():
-    db.drop_all()
-    db.create_all()
-    print("Database path:", os.path.abspath("fooddata.db"))
 
 # Make sure we start the program correctly
 @app.route("/")
@@ -59,7 +53,7 @@ def submit_rating():
         if (int(rating) <  1) or (int(rating) > 10):
             return jsonify({"error": "Rating must be between 1-10"}), 400
         
-        time_submitted = datetime.now(ZoneInfo(timezone_str))
+        time_submitted = datetime.now(timezone.utc)
 
         new_rating = FoodRating(
             food_name=food_name,

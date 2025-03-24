@@ -87,7 +87,8 @@ function App() {
 
     // Input/texts
     return (
-        <div>
+        <div style = {{ paddingLeft: "20px" }}>
+            
             <h1>Personal Food Data Tracker</h1>
 
             <form onSubmit={handleSubmit}>
