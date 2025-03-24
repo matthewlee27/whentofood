@@ -55,9 +55,11 @@ def submit_rating():
 
         return jsonify(
             {"message": "Rating submitted!",
+             "id": new_rating.id,
              "food_name": food_name,
              "rating": rating,
-             "time_submitted": new_rating.time_submitted.isoformat()}), 201
+             "time_submitted": new_rating.time_submitted.isoformat()
+            }), 201
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": "Something went wrong"}), 500  # Return a proper error response

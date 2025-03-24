@@ -6,7 +6,6 @@ function App() {
     const [foodName, setFoodName] = useState("");
     const [rating, setRating] = useState("");
     const [ratings, setRatings] = useState([]);
-    const [food_id, setID] = useState("");
 
     // Fetch existing ratings when the page loads
     useEffect(() => {
@@ -33,7 +32,15 @@ function App() {
                 alert(data.error);
             } else {
                 console.log("Success:", data);
-                setRatings([...ratings, data]);
+
+                const newRating = {
+                    id: data.id,
+                    food_name: data.food_name,
+                    rating: data.rating,
+                    time_submitted: data.time_submitted
+                };
+
+                setRatings([...ratings, newRating]);
                 setFoodName("");
                 setRating("");
             }
@@ -42,11 +49,12 @@ function App() {
     };
 
     const handleDeletion = (id) => {
+        const id_package = {id};
         
         fetch(`${API_URL}/delete`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({id})
+            body: JSON.stringify(id_package)
         })
         .then(response => response.json())
         .then(data => {
@@ -54,8 +62,8 @@ function App() {
                 console.error("Error", data.error);
                 alert(data.error);
             } else {
-                console.log("Deleted:", data);
-                setRatings(ratings.filter(r=> r.id !== id));
+                console.log("Deleted", data);
+                setRatings(prevRatings => prevRatings.filter(r => r.id !== id));
             }
         })
         .catch(error => console.error("Error deleting rating", error));
