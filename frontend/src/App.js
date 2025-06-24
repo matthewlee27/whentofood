@@ -2,7 +2,27 @@ import React, { useState, useEffect } from "react";
 
 const API_URL = "http://127.0.0.1:5001";
 
+// our layout
 function App() {
+    return (
+        <div>
+            <button> Dashboard </button>
+            <div style = {{display: "flex"}}>
+                <Dashboard />
+                <Leaderboard />
+            </div>
+        </div>
+
+    );
+}
+
+function Leaderboard() {
+    return (
+        <h1> Leaderboard </h1>
+    )
+}
+
+function Dashboard() {
     const [foodName, setFoodName] = useState("");
     const [rating, setRating] = useState("");
     const [ratings, setRatings] = useState([]);
@@ -85,7 +105,9 @@ function App() {
         .catch(error => console.error("Error deleting rating", error));
     };
 
-    // Input/texts
+
+
+    // STYLING / INPUT TEXTS
     return (
         <div style = {{ paddingLeft: "20px" }}>
             
